@@ -1,7 +1,8 @@
 package com.stockflow_backend.services;
 
-import com.stockflow_backend.dto.CategoryRequestDTO;
+import com.stockflow_backend.dto.request.CategoryRequestDTO;
 import com.stockflow_backend.entities.Category;
+import com.stockflow_backend.exceptions.CategoryNotFoundException;
 import com.stockflow_backend.mapper.CategoryMapper;
 import com.stockflow_backend.repositories.CategoryRepository;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class CategoryService {
 
     public Category getCategoryId(Long id){
         return categoryRepository.findById(id)
-                .orElseThrow(()-> new NoSuchElementException("La categoria solicitada no existe"));
+                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
     }
 
     public Page<Category> getAllCategories(Pageable pageable){
@@ -37,7 +38,7 @@ public class CategoryService {
 
     public void editCategory(Long id,CategoryRequestDTO categoryRequestDTO){
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new NoSuchElementException("La categoria solicitada no existe"));
+                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
 
         category.setName(categoryRequestDTO.getName());
         categoryRepository.save(category);
@@ -45,7 +46,7 @@ public class CategoryService {
 
     public void deleteCategory(Long id){
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new NoSuchElementException("La categoria solicitada no existe"));
+                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
 
         categoryRepository.deleteById(id);
     }

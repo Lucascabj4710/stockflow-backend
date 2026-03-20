@@ -1,4 +1,4 @@
-package com.stockflow_backend.dto;
+package com.stockflow_backend.dto.request;
 
 import com.stockflow_backend.entities.PaymentMethod;
 import com.stockflow_backend.entities.SaleStatus;

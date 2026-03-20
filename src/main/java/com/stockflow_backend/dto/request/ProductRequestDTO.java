@@ -1,4 +1,4 @@
-package com.stockflow_backend.dto;
+package com.stockflow_backend.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;

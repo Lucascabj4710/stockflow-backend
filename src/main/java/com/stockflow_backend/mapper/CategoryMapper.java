@@ -1,6 +1,6 @@
 package com.stockflow_backend.mapper;
 
-import com.stockflow_backend.dto.CategoryRequestDTO;
+import com.stockflow_backend.dto.request.CategoryRequestDTO;
 import com.stockflow_backend.entities.Category;
 import org.mapstruct.Mapper;
 

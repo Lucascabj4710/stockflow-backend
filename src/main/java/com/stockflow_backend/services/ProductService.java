@@ -101,9 +101,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void discountStock(Long id, Integer quantity) {
-
-        Product product = getProductById(id);
+    public void discountStock(Product product, Integer quantity) {
 
         if (product.getStock() < quantity) {
             throw new InvalidStockException(

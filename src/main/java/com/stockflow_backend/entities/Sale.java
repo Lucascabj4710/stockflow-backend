@@ -1,5 +1,6 @@
 package com.stockflow_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class Sale {
     private Long id;
 
     @Column(name = "sale_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime saleDate;
 
     @Enumerated(EnumType.STRING)

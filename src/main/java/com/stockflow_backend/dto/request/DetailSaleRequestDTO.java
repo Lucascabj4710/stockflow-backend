@@ -7,10 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SaleDetailRequestDTO {
-
-    @NotNull(message = "Sale id is required")
-    private Long saleId;
+public class DetailSaleRequestDTO {
 
     @NotNull(message = "Product id is required")
     private Long productId;

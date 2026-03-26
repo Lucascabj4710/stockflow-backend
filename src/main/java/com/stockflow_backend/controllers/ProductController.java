@@ -45,7 +45,8 @@ public class ProductController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<?> getProductByName(@PathVariable String name, @RequestParam(defaultValue = "0") Integer pagenumber){
+    public ResponseEntity<?> getProductByName(@PathVariable String name,
+                                              @RequestParam(defaultValue = "0") Integer pagenumber){
 
         Pageable pageable = PageRequest.of(pagenumber, 10);
 

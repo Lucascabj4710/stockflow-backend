@@ -1,8 +1,8 @@
 package com.stockflow_backend.controllers;
 
 import com.stockflow_backend.dto.request.CategoryRequestDTO;
-import com.stockflow_backend.entities.Category;
 import com.stockflow_backend.services.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,14 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO){
+    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO){
         categoryService.createCategory(categoryRequestDTO);
         return new ResponseEntity<>("COMPLETED", HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategoryByID(@PathVariable Long id){
-        return new ResponseEntity<>(categoryService.getCategoryId(id), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
     }
 
     @GetMapping

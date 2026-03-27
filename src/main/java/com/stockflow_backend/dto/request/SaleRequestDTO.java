@@ -19,7 +19,7 @@ public class SaleRequestDTO {
     @NotNull
     private PaymentMethod paymentMethod;
 
-    @Min(value = 1, message = "El minimo de monto de pago debe ser mayor a 0")
+    @Min(value = 1, message = "Payment amount must be greater than 0")
     private BigDecimal amountPaid;
 
     @NotEmpty

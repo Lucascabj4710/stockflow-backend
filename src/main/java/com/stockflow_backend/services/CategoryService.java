@@ -9,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-
 @Service
 public class CategoryService {
 
@@ -27,28 +25,27 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
-    public Category getCategoryId(Long id){
+    public Category getCategoryById(Long id){
         return categoryRepository.findById(id)
-                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
+                .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist"));
     }
 
     public Page<Category> getAllCategories(Pageable pageable){
         return categoryRepository.findAll(pageable);
     }
 
-    public void editCategory(Long id,CategoryRequestDTO categoryRequestDTO){
+    public void editCategory(Long id, CategoryRequestDTO categoryRequestDTO){
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
+                .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist"));
 
         category.setName(categoryRequestDTO.getName());
         categoryRepository.save(category);
     }
 
     public void deleteCategory(Long id){
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new CategoryNotFoundException("La categoria solicitada no existe"));
-
+        if (!categoryRepository.existsById(id)) {
+            throw new CategoryNotFoundException("The requested category does not exist");
+        }
         categoryRepository.deleteById(id);
     }
-
 }

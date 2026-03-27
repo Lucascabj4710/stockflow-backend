@@ -61,5 +61,10 @@ public class DetailSaleService {
         return detailSaleList;
     }
 
+    @Transactional
+    public void deleteDetailSaleByID(Long detailSaleID){
+        detailSaleRepository.deleteById(detailSaleID);
+    }
+
 
 }

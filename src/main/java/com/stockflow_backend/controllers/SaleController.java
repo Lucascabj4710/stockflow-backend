@@ -2,13 +2,14 @@ package com.stockflow_backend.controllers;
 
 import com.stockflow_backend.dto.request.SaleRequestDTO;
 import com.stockflow_backend.services.SaleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/sale")
+@RequestMapping("/sales")
 public class SaleController {
 
     private final SaleService saleService;
@@ -18,9 +19,9 @@ public class SaleController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createSale(@RequestBody SaleRequestDTO saleRequestDTO) {
+    public ResponseEntity<String> createSale(@Valid @RequestBody SaleRequestDTO saleRequestDTO) {
         saleService.createSale(saleRequestDTO);
-        return new ResponseEntity<>("Venta creada con éxito", HttpStatus.CREATED);
+        return new ResponseEntity<>("Sale created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping("/{saleID}")
@@ -34,9 +35,15 @@ public class SaleController {
     }
 
     @PatchMapping("/{saleID}/status/{status}")
-    public ResponseEntity<String> editSaleStatus(@PathVariable Long saleID, @PathVariable String status) {
+    public ResponseEntity<?> editSaleStatus(@PathVariable Long saleID, @PathVariable String status) {
         saleService.editSaleStatus(saleID, status);
-        return ResponseEntity.ok("Estado de la venta " + saleID + " actualizado a: " + status.toUpperCase());
+        return ResponseEntity.ok("Sale " + saleID + " status updated to: " + status.toUpperCase());
     }
-}
 
+    @PatchMapping("/{saleID}/products/{productID}")
+    public ResponseEntity<?> deleteProductSaleByID(@PathVariable Long saleID, @PathVariable Long productID) {
+        saleService.deleteProductSaleBySaleID(saleID, productID);
+        return ResponseEntity.ok("Sale updated successfully");
+    }
+
+}

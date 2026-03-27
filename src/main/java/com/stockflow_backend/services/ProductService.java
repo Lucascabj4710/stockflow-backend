@@ -1,6 +1,7 @@
 package com.stockflow_backend.services;
 
 import com.stockflow_backend.dto.request.ProductRequestDTO;
+import com.stockflow_backend.dto.response.ProductResponseDto;
 import com.stockflow_backend.entities.Category;
 import com.stockflow_backend.entities.Product;
 import com.stockflow_backend.exceptions.InvalidStockException;
@@ -30,7 +31,7 @@ public class ProductService {
     @Transactional
     public void createProduct(ProductRequestDTO productRequestDTO){
 
-        Category category = categoryService.getCategoryId(productRequestDTO.getCategoryId());
+        Category category = categoryService.getCategoryById(productRequestDTO.getCategoryId());
 
         Product product = productMapper.toProduct(productRequestDTO);
 
@@ -40,44 +41,82 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getActiveProducts(Pageable pageable){
-        return productRepository.findByActiveTrue(pageable);
+    public Page<ProductResponseDto> getActiveProducts(Pageable pageable){
+        return productRepository.findByActiveTrue(pageable).map(product -> {
+            ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+
+            if (product.getCategory() != null) {
+                productResponseDto.setCategoryName(product.getCategory().getName());
+            }
+
+            return productResponseDto;
+        });
     }
 
     @Transactional(readOnly = true)
     public Product getProductById(Long id){
         return productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ProductNotFoundException("El producto solicitado no existe."));
+                .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
     }
 
     @Transactional(readOnly = true)
-    public Product getProductByBarcode(String barcode){
-        return productRepository.findByBarcodeAndActiveTrue(barcode)
-                .orElseThrow(() -> new ProductNotFoundException("El producto con ese código de barras no existe."));
+    public ProductResponseDto getProductByBarcode(String barcode){
+        Product product = productRepository.findByBarcodeAndActiveTrue(barcode)
+                .orElseThrow(() -> new ProductNotFoundException("The product with that barcode does not exist."));
+
+        ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+
+        if (product.getCategory() != null) {
+            productResponseDto.setCategoryName(product.getCategory().getName());
+        }
+
+        return productResponseDto;
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getProductsByName(String name, Pageable pageable){
-        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(name, pageable);
+    public Page<ProductResponseDto> getProductsByName(String name, Pageable pageable){
+        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(name, pageable)
+                .map(product -> {
+                    ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+                    if (product.getCategory() != null) {
+                        productResponseDto.setCategoryName(product.getCategory().getName());
+                    }
+                    return productResponseDto;
+                });
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getProductsByBrand(String brand, Pageable pageable){
-        return productRepository.findByBrandContainingIgnoreCaseAndActiveTrue(brand, pageable);
+    public Page<ProductResponseDto> getProductsByBrand(String brand, Pageable pageable){
+        return productRepository.findByBrandContainingIgnoreCaseAndActiveTrue(brand, pageable)
+                .map(product -> {
+                    ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+                    if (product.getCategory() != null) {
+                        productResponseDto.setCategoryName(product.getCategory().getName());
+                    }
+                    return productResponseDto;
+                });
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable){
-        return productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable);
+    public Page<ProductResponseDto> getProductsByCategory(Long categoryId, Pageable pageable){
+        return productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+                .map(product -> {
+                    ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+                    if (product.getCategory() != null) {
+                        productResponseDto.setCategoryName(product.getCategory().getName());
+                    }
+                    return productResponseDto;
+                });
     }
 
     @Transactional
-    public Product updateProduct(Long id, ProductRequestDTO dto){
+    public void updateProduct(Long id, ProductRequestDTO dto){
 
         Product product = productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ProductNotFoundException("El producto solicitado no existe."));
+                .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
 
-        Category category = categoryService.getCategoryId(id);
+        // Se usa el id de categoría del DTO
+        Category category = categoryService.getCategoryById(dto.getCategoryId());
 
         product.setName(dto.getName());
         product.setBarcode(dto.getBarcode());
@@ -86,14 +125,14 @@ public class ProductService {
         product.setStock(dto.getStock());
         product.setCategory(category);
 
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     @Transactional
     public void deleteProduct(Long id){
 
         Product product = productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ProductNotFoundException("El producto solicitado no existe."));
+                .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
 
         product.setActive(false);
 
@@ -105,7 +144,7 @@ public class ProductService {
 
         if (product.getStock() < quantity) {
             throw new InvalidStockException(
-                    String.format("Stock insuficiente para el producto '%s'. Disponible: %d, Solicitado: %d",
+                    String.format("Insufficient stock for product '%s'. Available: %d, Requested: %d",
                             product.getName(), product.getStock(), quantity)
             );
         }
@@ -120,7 +159,7 @@ public class ProductService {
 
         if (quantity <= 0){
             throw new InvalidStockException(
-                    String.format("La cantidad ingresada no puede ser igual o menor a 0")
+                    "The quantity entered cannot be less than or equal to 0"
             );
         }
 
@@ -131,7 +170,4 @@ public class ProductService {
         productRepository.save(product);
 
     }
-
-
-
 }

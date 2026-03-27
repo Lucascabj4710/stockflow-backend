@@ -1,6 +1,7 @@
 package com.stockflow_backend.services;
 
 import com.stockflow_backend.dto.request.SaleRequestDTO;
+import com.stockflow_backend.dto.response.SaleResponseDto;
 import com.stockflow_backend.entities.DetailSale;
 import com.stockflow_backend.entities.Sale;
 import com.stockflow_backend.entities.SaleStatus;
@@ -38,17 +39,18 @@ public class SaleService {
         this.productService = productService;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Sale findSaleByID(Long saleID){
-        return saleRepository.findById(saleID).orElseThrow(()-> new SaleNotFoundException("La venta buscada no existe"));
+        return saleRepository.findById(saleID)
+                .orElseThrow(()-> new SaleNotFoundException("The requested sale does not exist"));
     }
 
     @Transactional(readOnly = true)
-    public Page<Sale> getAllSales(Integer pageNumber){
+    public Page<SaleResponseDto> getAllSales(Integer pageNumber){
 
         Pageable pageable = PageRequest.of(pageNumber,10);
 
-        return saleRepository.findAll(pageable);
+        return saleRepository.findAll(pageable).map(saleMapper::toSaleResponseDto);
     }
 
 
@@ -69,7 +71,7 @@ public class SaleService {
         changeAmount = sale.getAmountPaid().subtract(total);
 
         if (changeAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientPaymentException("El monto pagado es insuficiente. Faltan: " + changeAmount.abs());
+            throw new InsufficientPaymentException("Insufficient payment amount. Missing: " + changeAmount.abs());
         }
 
         sale.setChangeAmount(changeAmount);
@@ -95,8 +97,8 @@ public class SaleService {
                 break;
 
             default:
-                throw new InvalidSaleStatusException("El estado '" + status + "' no es válido. " +
-                        "Permitidos: COMPLETED, CANCELED.");
+                throw new InvalidSaleStatusException("The status '" + status + "' is not valid. " +
+                        "Allowed: COMPLETED, CANCELED.");
         }
     }
 
@@ -122,5 +124,21 @@ public class SaleService {
         saleRepository.save(sale);
     }
 
+    @Transactional
+    public void deleteProductSaleBySaleID(Long saleID, Long productID){
+        Sale sale = findSaleByID(saleID);
+
+        List<DetailSale> detailSaleList = detailSaleService.getDetailsSalesByID(saleID);
+
+        for (DetailSale detailSale : detailSaleList){
+            if (detailSale.getProduct().getId().equals(productID)){
+                Long detailSaleID = detailSale.getId();
+                detailSaleService.deleteDetailSaleByID(detailSaleID);
+                sale.setTotal(sale.getTotal().subtract(detailSale.getSubtotal()));
+            }
+        }
+        saleRepository.save(sale);
+
+    }
 
 }

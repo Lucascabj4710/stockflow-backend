@@ -124,21 +124,4 @@ public class SaleService {
         saleRepository.save(sale);
     }
 
-    @Transactional
-    public void deleteProductSaleBySaleID(Long saleID, Long productID){
-        Sale sale = findSaleByID(saleID);
-
-        List<DetailSale> detailSaleList = detailSaleService.getDetailsSalesByID(saleID);
-
-        for (DetailSale detailSale : detailSaleList){
-            if (detailSale.getProduct().getId().equals(productID)){
-                Long detailSaleID = detailSale.getId();
-                detailSaleService.deleteDetailSaleByID(detailSaleID);
-                sale.setTotal(sale.getTotal().subtract(detailSale.getSubtotal()));
-            }
-        }
-        saleRepository.save(sale);
-
-    }
-
 }

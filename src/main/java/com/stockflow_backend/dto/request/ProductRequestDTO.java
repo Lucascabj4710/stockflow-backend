@@ -31,5 +31,6 @@ public class ProductRequestDTO {
     @NotNull
     private Boolean active;
 
+    @NotNull
     private Long categoryId;
 }

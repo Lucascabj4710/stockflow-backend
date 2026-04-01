@@ -40,10 +40,5 @@ public class SaleController {
         return ResponseEntity.ok("Sale " + saleID + " status updated to: " + status.toUpperCase());
     }
 
-    @PatchMapping("/{saleID}/products/{productID}")
-    public ResponseEntity<?> deleteProductSaleByID(@PathVariable Long saleID, @PathVariable Long productID) {
-        saleService.deleteProductSaleBySaleID(saleID, productID);
-        return ResponseEntity.ok("Sale updated successfully");
-    }
 
 }

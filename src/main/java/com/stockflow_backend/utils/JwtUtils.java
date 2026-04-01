@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret.key}")
+    @Value("${security.jwt.secret.key}")
     private String secretKey;
 
     @Value("${security.jwt.user.generator}")

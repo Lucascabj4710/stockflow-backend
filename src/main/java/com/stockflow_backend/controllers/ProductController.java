@@ -75,6 +75,13 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductsByCategory(categoryId, pageable), HttpStatus.OK);
     }
 
+    @PutMapping("/update/{productID}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long productID, @RequestBody ProductRequestDTO productRequestDTO){
+
+        productService.updateProduct(productID, productRequestDTO);
+        return ResponseEntity.ok("Updated product");
+    }
+
     @PatchMapping("/stock/{id}/{quantity}")
     public ResponseEntity<?> addStock(@PathVariable(required = true) Long id,
                                       @PathVariable(required = true) Integer quantity){
@@ -88,5 +95,6 @@ public class ProductController {
         productService.updateProductStatus(productID);
         return ResponseEntity.ok("Updated status");
     }
+
 
 }

@@ -1,12 +1,15 @@
 version: '3.9'
+
 services:
   db:
     image: mysql:8.0
     container_name: stockflow_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:root}
-      MYSQL_DATABASE: stockflow
+      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      MYSQL_DATABASE: ${SPRING_DATASOURCE_DB}
+      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME}
+      MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -17,10 +20,11 @@ services:
     container_name: stockflow_backend
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/stockflow
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:root}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:bWljbGF2ZXN1cGVyc2VjcmV0YQ==}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_USER_GENERATOR: ${JWT_USER_GENERATOR}
     ports:
       - "8080:8080"
     depends_on:

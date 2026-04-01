@@ -170,4 +170,16 @@ public class ProductService {
         productRepository.save(product);
 
     }
+
+    @Transactional
+    public void updateProductStatus(Long productId){
+        Product product = getProductById(productId);
+
+        if (product.getStock() <= 0) {
+            product.setActive(false);
+        } else {
+            product.setActive(true);
+        }
+    }
+
 }

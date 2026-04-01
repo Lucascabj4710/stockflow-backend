@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -79,7 +79,14 @@ public class ProductController {
     public ResponseEntity<?> addStock(@PathVariable(required = true) Long id,
                                       @PathVariable(required = true) Integer quantity){
 
+        productService.addStock(id, quantity);
         return new ResponseEntity<>("Updated stock", HttpStatus.OK);
+    }
+
+    @PatchMapping("/updateStatus/{productID}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long productID){
+        productService.updateProductStatus(productID);
+        return ResponseEntity.ok("Updated status");
     }
 
 }

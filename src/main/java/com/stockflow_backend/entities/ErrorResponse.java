@@ -1,4 +1,4 @@
-package com.stockflow_backend.exceptions;
+package com.stockflow_backend.entities;
 
 import java.time.LocalDateTime;
 

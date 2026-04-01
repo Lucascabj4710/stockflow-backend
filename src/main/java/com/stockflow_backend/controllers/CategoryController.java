@@ -45,7 +45,7 @@ public class CategoryController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> editCategory(@PathVariable Long id, @RequestBody CategoryRequestDTO categoryRequestDTO){
+    public ResponseEntity<?> editCategory(@Valid @PathVariable Long id, @RequestBody CategoryRequestDTO categoryRequestDTO){
         categoryService.editCategory(id, categoryRequestDTO);
         return new ResponseEntity<>("CATEGORY EDITED", HttpStatus.OK);
     }

@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: stockflow-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: stockflow
+      MYSQL_USER: stockflowuser
+      MYSQL_PASSWORD: stockflowpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - stockflow-data:/var/lib/mysql
+    restart: unless-stopped
+
+  backend:
+    image: lucascabj4710/stockflow-backend:latest
+    container_name: stockflow-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/stockflow
+      SPRING_DATASOURCE_USERNAME: stockflowuser
+      SPRING_DATASOURCE_PASSWORD: stockflowpass
+      JWT_SECRET_KEY: bWljbGF2ZXN1cGVyc2VjcmV0YQ==
+      JWT_USER_GENERATOR: StockflowBackend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  stockflow-data:

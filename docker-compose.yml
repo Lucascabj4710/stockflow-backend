@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   db:
     image: mysql:8.0
@@ -8,12 +6,17 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       MYSQL_DATABASE: ${SPRING_DATASOURCE_DB}
-      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME}
+      MYSQL_USER: stockflow_user
       MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     image: lucascabj4710/stockflow-backend:latest
@@ -28,7 +31,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

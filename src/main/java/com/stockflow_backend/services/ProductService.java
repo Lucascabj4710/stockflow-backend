@@ -4,9 +4,11 @@ import com.stockflow_backend.dto.request.ProductRequestDTO;
 import com.stockflow_backend.dto.response.ProductResponseDto;
 import com.stockflow_backend.entities.Category;
 import com.stockflow_backend.entities.Product;
+import com.stockflow_backend.exceptions.CategoryNotFoundException;
 import com.stockflow_backend.exceptions.InvalidStockException;
 import com.stockflow_backend.exceptions.ProductNotFoundException;
 import com.stockflow_backend.mapper.ProductMapper;
+import com.stockflow_backend.repositories.CategoryRepository;
 import com.stockflow_backend.repositories.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,20 +20,19 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final CategoryRepository categoryRepository;
 
-    // Services
-    private final CategoryService categoryService;
-
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper, CategoryService categoryService) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.categoryService = categoryService;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional
     public void createProduct(ProductRequestDTO productRequestDTO){
 
-        Category category = categoryService.getCategoryById(productRequestDTO.getCategoryId());
+        Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
+                .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist."));
 
         Product product = productMapper.toProduct(productRequestDTO);
 
@@ -116,7 +117,8 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
 
         // Se usa el id de categoría del DTO
-        Category category = categoryService.getCategoryById(dto.getCategoryId());
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist."));
 
         product.setName(dto.getName());
         product.setBarcode(dto.getBarcode());
@@ -124,8 +126,6 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setCategory(category);
-
-        productRepository.save(product);
     }
 
     @Transactional

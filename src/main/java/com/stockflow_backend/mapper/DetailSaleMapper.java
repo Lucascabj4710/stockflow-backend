@@ -1,6 +1,7 @@
 package com.stockflow_backend.mapper;
 
 import com.stockflow_backend.dto.request.DetailSaleRequestDTO;
+import com.stockflow_backend.dto.response.DetailSaleResponseDto;
 import com.stockflow_backend.entities.DetailSale;
 import org.mapstruct.Mapper;
 
@@ -8,5 +9,6 @@ import org.mapstruct.Mapper;
 public interface DetailSaleMapper {
 
     DetailSale toDetailSale(DetailSaleRequestDTO detailSaleRequestDTO);
+    DetailSaleResponseDto toDetailResponseDto(DetailSale detailSale);
 
 }

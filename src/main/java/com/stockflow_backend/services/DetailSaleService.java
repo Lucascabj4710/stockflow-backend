@@ -1,7 +1,6 @@
 package com.stockflow_backend.services;
 
 import com.stockflow_backend.dto.request.DetailSaleRequestDTO;
-import com.stockflow_backend.dto.request.SaleRequestDTO;
 import com.stockflow_backend.entities.DetailSale;
 import com.stockflow_backend.entities.Product;
 import com.stockflow_backend.entities.Sale;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service

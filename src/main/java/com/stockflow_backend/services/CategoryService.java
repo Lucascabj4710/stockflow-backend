@@ -1,6 +1,7 @@
 package com.stockflow_backend.services;
 
 import com.stockflow_backend.dto.request.CategoryRequestDTO;
+import com.stockflow_backend.dto.response.CategoryResponseDto;
 import com.stockflow_backend.entities.Category;
 import com.stockflow_backend.exceptions.CategoryNotFoundException;
 import com.stockflow_backend.mapper.CategoryMapper;
@@ -28,14 +29,16 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Category getCategoryById(Long id){
+    public CategoryResponseDto getCategoryById(Long id){
         return categoryRepository.findById(id)
+                .map(categoryMapper::toCategoryResponseDto)
                 .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist"));
     }
 
     @Transactional(readOnly = true)
-    public Page<Category> getAllCategories(Pageable pageable){
-        return categoryRepository.findAll(pageable);
+    public Page<CategoryResponseDto> getAllCategories(Pageable pageable){
+        return categoryRepository.findAll(pageable)
+                .map(categoryMapper::toCategoryResponseDto);
     }
 
     @Transactional
@@ -44,7 +47,6 @@ public class CategoryService {
                 .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist"));
 
         category.setName(categoryRequestDTO.getName());
-        categoryRepository.save(category);
     }
 
     @Transactional

@@ -36,6 +36,12 @@ public class SecurityConfig {
                 .csrf(crsf -> crsf.disable())
                 .authorizeHttpRequests(auth -> {
 
+                    auth.requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html"
+                    ).permitAll();
+
                     // Categories
                     auth.requestMatchers(HttpMethod.GET,"/categories/**").authenticated();
                     auth.requestMatchers(HttpMethod.POST,"/categories/**").hasRole("ADMIN");
@@ -44,7 +50,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PATCH,"/categories/**").hasRole("ADMIN");
 
                     // Products
-                    auth.requestMatchers(HttpMethod.GET,"/products/**").authenticated();
+                    auth.requestMatchers(HttpMethod.GET,"/products/**").permitAll();
                     auth.requestMatchers(HttpMethod.POST,"/products/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE,"/products/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.PUT,"/products/**").hasRole("ADMIN");
@@ -64,6 +70,10 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PATCH, "/auth/**").permitAll();
                     auth.requestMatchers(HttpMethod.PUT, "/auth/**").permitAll();
 
+                    // PDF WRITTER
+                    auth.requestMatchers(HttpMethod.GET, "/pdf/**").permitAll();
+
+                    auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -35,6 +35,9 @@ public class Product {
     @Column(nullable = false)
     private Boolean active;
 
+    @Version
+    private Long version;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

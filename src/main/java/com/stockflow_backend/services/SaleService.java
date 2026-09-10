@@ -1,8 +1,10 @@
 package com.stockflow_backend.services;
 
+import com.stockflow_backend.dto.request.DetailSaleRequestDTO;
 import com.stockflow_backend.dto.request.SaleRequestDTO;
 import com.stockflow_backend.dto.response.SaleResponseDto;
 import com.stockflow_backend.entities.DetailSale;
+import com.stockflow_backend.entities.Product;
 import com.stockflow_backend.entities.Sale;
 import com.stockflow_backend.entities.SaleStatus;
 import com.stockflow_backend.exceptions.InsufficientPaymentException;
@@ -62,28 +64,30 @@ public class SaleService {
 
     @Transactional
     public void createSale(SaleRequestDTO saleRequestDTO){
-        Sale sale = saleMapper.toSale(saleRequestDTO);
-        saleRepository.save(sale);
-
-        List<DetailSale> detailSaleList = detailSaleService.createDetailSale(sale, saleRequestDTO.getDetailSaleRequestDTOList());
         BigDecimal total = BigDecimal.ZERO;
-        BigDecimal changeAmount = BigDecimal.ZERO;
 
-        for (DetailSale detailSale : detailSaleList){
-            total = total.add(detailSale.getSubtotal());
+        for (DetailSaleRequestDTO detailDto : saleRequestDTO.getDetailSaleRequestDTOList()) {
+            Product product = productService.getProductByIdPrivate(detailDto.getProductId());
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(detailDto.getQuantity())));
         }
-        sale.setTotal(total);
 
-        changeAmount = sale.getAmountPaid().subtract(total);
-
+        BigDecimal changeAmount = saleRequestDTO.getAmountPaid().subtract(total);
         if (changeAmount.compareTo(BigDecimal.ZERO) < 0) {
             throw new InsufficientPaymentException("Insufficient payment amount. Missing: " + changeAmount.abs());
         }
 
-        sale.setChangeAmount(changeAmount);
-        sale.setSaleDate(LocalDateTime.now());
+        Sale sale = new Sale();
         sale.setStatus(SaleStatus.IN_PROGRESS);
+        sale.setSaleDate(LocalDateTime.now());
+        sale.setPaymentMethod(saleRequestDTO.getPaymentMethod());
+        sale.setChangeAmount(changeAmount);
+        sale.setTotal(total);
+        saleRepository.save(sale);
 
+        List<DetailSale> detailSaleList = detailSaleService.createDetailSale(sale, saleRequestDTO.getDetailSaleRequestDTOList());
+
+        sale.setDetailSales(detailSaleList);
+        sale.setStatus(SaleStatus.COMPLETED);
         saleRepository.save(sale);
     }
 

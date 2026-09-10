@@ -9,6 +9,7 @@ import com.stockflow_backend.repositories.DetailSaleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,10 @@ public class DetailSaleService {
             detailSale.setSale(sale);
             detailSale.setProduct(product);
             detailSale.setUnitPrice(product.getPrice());
+
+            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(detailSaleRequestDTO.getQuantity()));
+
+            detailSale.setSubtotal(subtotal);
 
             detailSaleList.add(detailSale);
         }

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,5 +38,8 @@ public class Sale {
 
     @Column(name = "change_amount")
     private BigDecimal changeAmount;
+
+    @OneToMany(mappedBy = "sale")
+    private List<DetailSale> detailSales;
 
 }

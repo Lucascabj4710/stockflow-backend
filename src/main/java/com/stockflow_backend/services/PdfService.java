@@ -15,6 +15,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.stockflow_backend.entities.DetailSale;
 import com.stockflow_backend.entities.Sale;
+import com.stockflow_backend.exceptions.PdfGenerationException;
 import com.stockflow_backend.exceptions.SaleNotFoundException;
 import com.stockflow_backend.repositories.DetailSaleRepository;
 import com.stockflow_backend.repositories.SaleRepository;
@@ -63,7 +64,9 @@ public class PdfService {
             fontRegular = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
         } catch (IOException e) {
-            throw new RuntimeException("Error al cargar las fuentes para el PDF", e);
+            throw new PdfGenerationException(
+                    "Error al cargar las fuentes para el PDF"
+            );
         }
 
         document.setFont(fontRegular);

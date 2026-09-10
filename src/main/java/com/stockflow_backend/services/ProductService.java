@@ -55,7 +55,13 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Product getProductById(Long id){
+    public ProductResponseDto getProductById(Long id){
+        return productRepository.findByIdAndActiveTrue(id).map(productMapper::toProductResponseDto)
+                .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
+    }
+
+    @Transactional(readOnly = true)
+    public Product getProductByIdPrivate(Long id){
         return productRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
     }
@@ -163,7 +169,7 @@ public class ProductService {
             );
         }
 
-        Product product = getProductById(id);
+        Product product = getProductByIdPrivate(id);
 
         product.setStock(product.getStock() + quantity);
 
@@ -173,7 +179,7 @@ public class ProductService {
 
     @Transactional
     public void updateProductStatus(Long productId){
-        Product product = getProductById(productId);
+        Product product = getProductByIdPrivate(productId);
 
         if (product.getStock() <= 0) {
             product.setActive(false);

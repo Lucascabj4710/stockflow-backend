@@ -44,7 +44,7 @@ public class DetailSaleService {
         for (DetailSaleRequestDTO detailSaleRequestDTO : detailSaleRequestDTOS) {
             DetailSale detailSale = detailSaleMapper.toDetailSale(detailSaleRequestDTO);
 
-            Product product = productService.getProductById(detailSaleRequestDTO.getProductId());
+            Product product = productService.getProductByIdPrivate(detailSaleRequestDTO.getProductId());
 
             productService.discountStock(product ,detailSale.getQuantity());
 

@@ -40,8 +40,14 @@ public class SaleService {
     }
 
     @Transactional(readOnly = true)
-    public Sale findSaleByID(Long saleID){
+    public Sale findSaleByIDPrivate(Long saleID){
         return saleRepository.findById(saleID)
+                .orElseThrow(()-> new SaleNotFoundException("The requested sale does not exist"));
+    }
+
+    @Transactional
+    public SaleResponseDto findSaleByID(Long saleID){
+        return saleRepository.findById(saleID).map(saleMapper::toSaleResponseDto)
                 .orElseThrow(()-> new SaleNotFoundException("The requested sale does not exist"));
     }
 
@@ -88,6 +94,10 @@ public class SaleService {
         String upperStatus = status.toUpperCase();
 
         switch (upperStatus) {
+            case "IN_PROGRESS":
+                inProgressStatus(saleID);
+                break;
+
             case "COMPLETED":
                 completedStatus(saleID);
                 break;
@@ -103,15 +113,38 @@ public class SaleService {
     }
 
     @Transactional
+    public void inProgressStatus(Long saleID){
+        Sale sale = findSaleByIDPrivate(saleID);
+        if (sale.getStatus() == SaleStatus.CANCELED) {
+            throw new InvalidSaleStatusException(
+                    "The sale is already canceled"
+            );
+        }
+        sale.setSaleDate(LocalDateTime.now());
+        sale.setStatus(SaleStatus.IN_PROGRESS);
+    }
+
+    @Transactional
     public void completedStatus(Long saleID){
-        Sale sale = findSaleByID(saleID);
+        Sale sale = findSaleByIDPrivate(saleID);
+        if (sale.getStatus() == SaleStatus.CANCELED) {
+            throw new InvalidSaleStatusException(
+                    "The sale is already canceled"
+            );
+        }
         sale.setSaleDate(LocalDateTime.now());
         sale.setStatus(SaleStatus.COMPLETED);
     }
 
     @Transactional
     public void canceledStatus(Long saleID){
-        Sale sale = findSaleByID(saleID);
+        Sale sale = findSaleByIDPrivate(saleID);
+
+        if (sale.getStatus() == SaleStatus.CANCELED) {
+            throw new InvalidSaleStatusException(
+                    "The sale is already canceled"
+            );
+        }
 
         List<DetailSale> detailSaleList = detailSaleService.getDetailsSalesByID(saleID);
 
@@ -123,5 +156,7 @@ public class SaleService {
         sale.setStatus(SaleStatus.CANCELED);
         saleRepository.save(sale);
     }
+
+
 
 }

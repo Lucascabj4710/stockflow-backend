@@ -71,7 +71,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PUT, "/auth/**").permitAll();
 
                     // PDF WRITTER
-                    auth.requestMatchers(HttpMethod.GET, "/pdf/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/pdf/**").hasAnyAuthority("USER","ADMIN");
 
                     auth.anyRequest().authenticated();
                 })

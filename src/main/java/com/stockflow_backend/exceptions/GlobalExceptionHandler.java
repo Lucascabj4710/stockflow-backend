@@ -99,19 +99,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+
         String detailedMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining("; "));
 
+
+        String finalMessage = detailedMessage.isBlank() ? "Validation error" : detailedMessage;
+
         ErrorResponse error = new ErrorResponse(
-                detailedMessage.isBlank() ? "Validation error" : detailedMessage,
+                finalMessage,
                 HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now()
         );
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-
     @ExceptionHandler(OptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
         ErrorResponse error = new ErrorResponse(

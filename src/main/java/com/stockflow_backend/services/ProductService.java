@@ -5,6 +5,7 @@ import com.stockflow_backend.dto.response.ProductResponseDto;
 import com.stockflow_backend.entities.Category;
 import com.stockflow_backend.entities.Product;
 import com.stockflow_backend.exceptions.CategoryNotFoundException;
+import com.stockflow_backend.exceptions.InvalidDiscountException;
 import com.stockflow_backend.exceptions.InvalidStockException;
 import com.stockflow_backend.exceptions.ProductNotFoundException;
 import com.stockflow_backend.mapper.ProductMapper;
@@ -14,6 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -36,6 +41,14 @@ public class ProductService {
 
         Product product = productMapper.toProduct(productRequestDTO);
 
+        BigDecimal discount = productRequestDTO.getDiscount();
+
+        if (discount == null) {
+            product.setDiscount(BigDecimal.ZERO);
+        } else {
+            product.setDiscount(discount);
+        }
+
         product.setCategory(category);
 
         productRepository.save(product);
@@ -50,14 +63,34 @@ public class ProductService {
                 productResponseDto.setCategoryName(product.getCategory().getName());
             }
 
+            BigDecimal discountedPrice  = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+            productResponseDto.setDiscountedPrice(discountedPrice);
+            productResponseDto.setDiscount(product.getDiscount());
+
             return productResponseDto;
         });
     }
 
     @Transactional(readOnly = true)
-    public ProductResponseDto getProductById(Long id){
-        return productRepository.findByIdAndActiveTrue(id).map(productMapper::toProductResponseDto)
-                .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
+    public ProductResponseDto getProductById(Long id) {
+
+        Product product = productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException("The requested product does not exist."));
+
+        ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+
+        if (product.getCategory() != null) {
+            productResponseDto.setCategoryName(product.getCategory().getName());
+        }
+
+        BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+        productResponseDto.setDiscountedPrice(discountedPrice);
+        productResponseDto.setDiscount(product.getDiscount());
+
+        return productResponseDto;
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +110,11 @@ public class ProductService {
             productResponseDto.setCategoryName(product.getCategory().getName());
         }
 
+        BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+        productResponseDto.setDiscountedPrice(discountedPrice);
+        productResponseDto.setDiscount(product.getDiscount());
+
         return productResponseDto;
     }
 
@@ -88,6 +126,12 @@ public class ProductService {
                     if (product.getCategory() != null) {
                         productResponseDto.setCategoryName(product.getCategory().getName());
                     }
+
+                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+                    productResponseDto.setDiscountedPrice(discountedPrice);
+                    productResponseDto.setDiscount(product.getDiscount());
+
                     return productResponseDto;
                 });
     }
@@ -100,6 +144,11 @@ public class ProductService {
                     if (product.getCategory() != null) {
                         productResponseDto.setCategoryName(product.getCategory().getName());
                     }
+                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+                    productResponseDto.setDiscountedPrice(discountedPrice);
+                    productResponseDto.setDiscount(product.getDiscount());
+
                     return productResponseDto;
                 });
     }
@@ -112,6 +161,13 @@ public class ProductService {
                     if (product.getCategory() != null) {
                         productResponseDto.setCategoryName(product.getCategory().getName());
                     }
+
+                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+                    productResponseDto.setDiscount(product.getDiscount());
+
+                    productResponseDto.setDiscountedPrice(discountedPrice);
+
                     return productResponseDto;
                 });
     }
@@ -119,10 +175,10 @@ public class ProductService {
     @Transactional
     public void updateProduct(Long id, ProductRequestDTO dto){
 
-        Product product = productRepository.findByIdAndActiveTrue(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("The requested product does not exist."));
 
-        // Se usa el id de categoría del DTO
+
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(()-> new CategoryNotFoundException("The requested category does not exist."));
 
@@ -132,6 +188,11 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setCategory(category);
+        product.setDiscount(
+                dto.getDiscount() != null
+                        ? dto.getDiscount()
+                        : BigDecimal.ZERO
+        );
     }
 
     @Transactional
@@ -186,6 +247,114 @@ public class ProductService {
         } else {
             product.setActive(true);
         }
+    }
+
+    @Transactional
+    public void applyDiscountToProduct(Long productId, BigDecimal discount) {
+
+        if (discount == null ||
+                discount.compareTo(BigDecimal.ZERO) < 0 ||
+                discount.compareTo(BigDecimal.valueOf(100)) > 0) {
+
+            throw new InvalidDiscountException(
+                    "Discount must be between 0 and 100."
+            );
+        }
+
+        Product product = productRepository.findByIdAndActiveTrue(productId)
+                .orElseThrow(() -> new ProductNotFoundException(
+                        "The requested product does not exist."
+                ));
+
+        product.setDiscount(discount);
+    }
+
+    @Transactional
+    public void applyDiscountToBrand(String brand, BigDecimal discount) {
+
+        if (discount == null ||
+                discount.compareTo(BigDecimal.ZERO) < 0 ||
+                discount.compareTo(BigDecimal.valueOf(100)) > 0) {
+
+            throw new InvalidDiscountException(
+                    "Discount must be between 0 and 100."
+            );
+        }
+
+        List<Product> products =
+                productRepository.findByBrandIgnoreCaseAndActiveTrue(brand);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException(
+                    "No active products were found for the requested brand."
+            );
+        }
+
+        products.forEach(product -> product.setDiscount(discount));
+    }
+
+    @Transactional
+    public void applyDiscountByCategory(Long categoryId, BigDecimal discount) {
+
+        if (discount == null ||
+                discount.compareTo(BigDecimal.ZERO) < 0 ||
+                discount.compareTo(BigDecimal.valueOf(100)) > 0) {
+
+            throw new InvalidDiscountException(
+                    "Discount must be between 0 and 100."
+            );
+        }
+
+        List<Product> products =
+                productRepository.findByCategoryIdAndActiveTrue(categoryId);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException(
+                    "No active products were found in the requested category."
+            );
+        }
+
+        products.forEach(product -> product.setDiscount(discount));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> getLowStockProducts(Integer stock, Pageable pageable){
+        return productRepository.findByStockLessThanEqualAndActiveTrue(stock, pageable).map(product -> {
+            ProductResponseDto productResponseDto = productMapper.toProductResponseDto(product);
+
+            if (product.getCategory() != null) {
+                productResponseDto.setCategoryName(product.getCategory().getName());
+            }
+
+            BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), product.getDiscount());
+
+            productResponseDto.setDiscount(product.getDiscount());
+
+            productResponseDto.setDiscountedPrice(discountedPrice);
+
+            return productResponseDto;
+        });
+    }
+
+    public BigDecimal getDiscountedPrice(Product product) {
+        return calculateDiscountedPrice(
+                product.getPrice(),
+                product.getDiscount()
+        );
+    }
+
+    private BigDecimal calculateDiscountedPrice(
+            BigDecimal price,
+            BigDecimal discount) {
+
+        if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+            return price.subtract(
+                    price.multiply(discount)
+                            .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+            );
+        }
+
+        return price;
     }
 
 }

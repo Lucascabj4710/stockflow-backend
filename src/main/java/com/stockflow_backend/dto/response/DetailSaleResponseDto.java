@@ -5,12 +5,20 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Getter @Setter
+@Getter
+@Setter
 public class DetailSaleResponseDto {
+
     private Long productId;
     private String productName;
-    private Integer quantity;
-    private BigDecimal unitPrice;
-    private BigDecimal subtotal;
 
+    private Integer quantity;
+
+    private BigDecimal unitPrice;
+
+    private BigDecimal discount;
+
+    private BigDecimal discountPrice;
+
+    private BigDecimal subtotal;
 }

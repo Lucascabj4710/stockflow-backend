@@ -68,7 +68,10 @@ public class SaleService {
 
         for (DetailSaleRequestDTO detailDto : saleRequestDTO.getDetailSaleRequestDTOList()) {
             Product product = productService.getProductByIdPrivate(detailDto.getProductId());
-            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(detailDto.getQuantity())));
+
+            BigDecimal discountedPrice = productService.getDiscountedPrice(product);
+
+            total = total.add(discountedPrice.multiply(BigDecimal.valueOf(detailDto.getQuantity())));
         }
 
         BigDecimal changeAmount = saleRequestDTO.getAmountPaid().subtract(total);
@@ -81,6 +84,7 @@ public class SaleService {
         sale.setSaleDate(LocalDateTime.now());
         sale.setPaymentMethod(saleRequestDTO.getPaymentMethod());
         sale.setChangeAmount(changeAmount);
+        sale.setAmountPaid(saleRequestDTO.getAmountPaid());
         sale.setTotal(total);
         saleRepository.save(sale);
 
@@ -112,7 +116,7 @@ public class SaleService {
 
             default:
                 throw new InvalidSaleStatusException("The status '" + status + "' is not valid. " +
-                        "Allowed: COMPLETED, CANCELED.");
+                        "Allowed: IN_PROGRESS,COMPLETED, CANCELED.");
         }
     }
 

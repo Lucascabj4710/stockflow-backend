@@ -1,6 +1,8 @@
 package com.stockflow_backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +36,11 @@ public class Product {
 
     @Column(nullable = false)
     private Boolean active;
+
+    @DecimalMin(value = "0.00")
+    @DecimalMax(value = "100.00")
+    @Column(precision = 5, scale = 2)
+    private BigDecimal discount;
 
     @Version
     private Long version;

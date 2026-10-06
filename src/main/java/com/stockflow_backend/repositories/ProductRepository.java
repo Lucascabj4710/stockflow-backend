@@ -24,4 +24,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByCategoryIdAndActiveTrue(Long categoryId, Pageable pageable);
 
+    Page<Product> findByStockLessThanEqualAndActiveTrue(Integer stock, Pageable pageable);
+
+    List<Product> findByBrandIgnoreCaseAndActiveTrue(String brand);
+
+    List<Product> findByCategoryIdAndActiveTrue(Long categoryId);
+
 }

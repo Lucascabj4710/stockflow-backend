@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +36,6 @@ public class DetailSaleService {
         return detailSaleRepository.findBySale_Id(saleID);
     }
 
-
-
     @Transactional
     public List<DetailSale> createDetailSale(Sale sale, List<DetailSaleRequestDTO> detailSaleRequestDTOS){
 
@@ -51,9 +50,14 @@ public class DetailSaleService {
 
             detailSale.setSale(sale);
             detailSale.setProduct(product);
+            detailSale.setDiscount(product.getDiscount());
             detailSale.setUnitPrice(product.getPrice());
 
-            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(detailSaleRequestDTO.getQuantity()));
+            BigDecimal discountedPrice = productService.getDiscountedPrice(product);
+
+            detailSale.setDiscountPrice(discountedPrice);
+
+            BigDecimal subtotal = discountedPrice.multiply(BigDecimal.valueOf(detailSaleRequestDTO.getQuantity()));
 
             detailSale.setSubtotal(subtotal);
 
@@ -64,10 +68,6 @@ public class DetailSaleService {
         return detailSaleList;
     }
 
-    @Transactional
-    public void deleteDetailSaleByID(Long detailSaleID){
-        detailSaleRepository.deleteById(detailSaleID);
-    }
 
 
 }

@@ -32,7 +32,10 @@ public class PdfService {
     private final SaleRepository saleRepository;
     private final DetailSaleRepository detailSaleRepository;
 
-    public PdfService(SaleRepository saleRepository, DetailSaleRepository detailSaleRepository) {
+    public PdfService(
+            SaleRepository saleRepository,
+            DetailSaleRepository detailSaleRepository
+    ) {
         this.saleRepository = saleRepository;
         this.detailSaleRepository = detailSaleRepository;
     }
@@ -57,9 +60,10 @@ public class PdfService {
 
         document.setMargins(30, 36, 30, 36);
 
-        // Fuentes estándar para regular y negrita
+        // Fuentes
         PdfFont fontRegular;
         PdfFont fontBold;
+
         try {
             fontRegular = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
@@ -101,8 +105,11 @@ public class PdfService {
 
         document.add(saleDataTitle);
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        String fechaFormateada = sale.getSaleDate().format(dateFormatter);
+        DateTimeFormatter dateFormatter =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        String fechaFormateada =
+                sale.getSaleDate().format(dateFormatter);
 
         String status = switch (sale.getStatus()) {
             case IN_PROGRESS -> "Venta en progreso";
@@ -110,21 +117,73 @@ public class PdfService {
             case CANCELED -> "Venta cancelada";
         };
 
-        Table saleInfoTable = new Table(UnitValue.createPercentArray(new float[]{30, 70}))
+        Table saleInfoTable = new Table(
+                UnitValue.createPercentArray(new float[]{30, 70})
+        )
                 .useAllAvailableWidth()
                 .setMarginBottom(12);
 
-        saleInfoTable.addCell(new Cell().add(new Paragraph("Nº Comprobante").setFont(fontBold).setFontSize(9)));
-        saleInfoTable.addCell(new Cell().add(new Paragraph("#" + String.format("%06d", sale.getId())).setFontSize(9)));
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph("Nº Comprobante")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                )
+        );
 
-        saleInfoTable.addCell(new Cell().add(new Paragraph("Fecha y Hora").setFont(fontBold).setFontSize(9)));
-        saleInfoTable.addCell(new Cell().add(new Paragraph(fechaFormateada).setFontSize(9)));
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph(
+                                "#" + String.format("%06d", sale.getId())
+                        ).setFontSize(9)
+                )
+        );
 
-        saleInfoTable.addCell(new Cell().add(new Paragraph("Estado").setFont(fontBold).setFontSize(9)));
-        saleInfoTable.addCell(new Cell().add(new Paragraph(status).setFontSize(9)));
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph("Fecha y Hora")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                )
+        );
 
-        saleInfoTable.addCell(new Cell().add(new Paragraph("Método de Pago").setFont(fontBold).setFontSize(9)));
-        saleInfoTable.addCell(new Cell().add(new Paragraph(String.valueOf(sale.getPaymentMethod())).setFontSize(9)));
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph(fechaFormateada)
+                                .setFontSize(9)
+                )
+        );
+
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph("Estado")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                )
+        );
+
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph(status)
+                                .setFontSize(9)
+                )
+        );
+
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph("Método de Pago")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                )
+        );
+
+        saleInfoTable.addCell(
+                new Cell().add(
+                        new Paragraph(
+                                String.valueOf(sale.getPaymentMethod())
+                        ).setFontSize(9)
+                )
+        );
 
         document.add(saleInfoTable);
 
@@ -139,25 +198,139 @@ public class PdfService {
 
         document.add(detailTitle);
 
-        Table detailTable = new Table(UnitValue.createPercentArray(new float[]{46, 14, 20, 20}))
+        /*
+         * Producto | Cant. | Precio Unit. | Desc. | Precio Final | Subtotal
+         */
+        Table detailTable = new Table(
+                UnitValue.createPercentArray(
+                        new float[]{30, 10, 15, 10, 17, 18}
+                )
+        )
                 .useAllAvailableWidth()
                 .setMarginBottom(12);
 
         // Encabezados
-        detailTable.addHeaderCell(new Cell().add(new Paragraph("Producto").setFont(fontBold).setFontSize(9)));
-        detailTable.addHeaderCell(new Cell().add(new Paragraph("Cant.").setFont(fontBold).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
-        detailTable.addHeaderCell(new Cell().add(new Paragraph("Precio Unit.").setFont(fontBold).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
-        detailTable.addHeaderCell(new Cell().add(new Paragraph("Subtotal").setFont(fontBold).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Producto")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                )
+        );
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Cant.")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Precio Unit.")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Desc.")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Precio Final")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        detailTable.addHeaderCell(
+                new Cell().add(
+                        new Paragraph("Subtotal")
+                                .setFont(fontBold)
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
 
         int totalItems = 0;
 
         for (DetailSale detailSale : detailSaleList) {
+
             totalItems += detailSale.getQuantity();
 
-            detailTable.addCell(new Cell().add(new Paragraph(detailSale.getProduct().getName()).setFontSize(9)));
-            detailTable.addCell(new Cell().add(new Paragraph(String.valueOf(detailSale.getQuantity())).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
-            detailTable.addCell(new Cell().add(new Paragraph(String.format("$%.2f", detailSale.getUnitPrice())).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
-            detailTable.addCell(new Cell().add(new Paragraph(String.format("$%.2f", detailSale.getSubtotal())).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
+            // Producto
+            detailTable.addCell(
+                    new Cell().add(
+                            new Paragraph(
+                                    detailSale.getProduct().getName()
+                            ).setFontSize(9)
+                    )
+            );
+
+            // Cantidad
+            detailTable.addCell(
+                    new Cell().add(
+                            new Paragraph(
+                                    String.valueOf(detailSale.getQuantity())
+                            ).setFontSize(9)
+                    ).setTextAlignment(TextAlignment.RIGHT)
+            );
+
+            // Precio original
+            detailTable.addCell(
+                    new Cell().add(
+                            new Paragraph(
+                                    String.format(
+                                            "$%.2f",
+                                            detailSale.getUnitPrice()
+                                    )
+                            ).setFontSize(9)
+                    ).setTextAlignment(TextAlignment.RIGHT)
+            );
+
+            // Descuento
+            detailTable.addCell(
+                    new Cell().add(
+                            new Paragraph(
+                                    String.format(
+                                            "%.2f%%",
+                                            detailSale.getDiscount()
+                                    )
+                            ).setFontSize(9)
+                    ).setTextAlignment(TextAlignment.RIGHT)
+            );
+
+            // Precio final unitario
+            detailTable.addCell(
+                    new Cell().add(
+                                    new Paragraph(
+                                            String.format(
+                                                    "$%.2f",
+                                                    detailSale.getDiscountPrice()
+                                            )
+                                    ).setFontSize(9)
+                            ).setFont(fontBold)
+                            .setTextAlignment(TextAlignment.RIGHT)
+            );
+
+            // Subtotal
+            detailTable.addCell(
+                    new Cell().add(
+                            new Paragraph(
+                                    String.format(
+                                            "$%.2f",
+                                            detailSale.getSubtotal()
+                                    )
+                            ).setFontSize(9)
+                    ).setTextAlignment(TextAlignment.RIGHT)
+            );
         }
 
         document.add(detailTable);
@@ -173,51 +346,126 @@ public class PdfService {
 
         document.add(summaryTitle);
 
-        Table summaryTable = new Table(UnitValue.createPercentArray(new float[]{60, 40}))
+        Table summaryTable = new Table(
+                UnitValue.createPercentArray(new float[]{60, 40})
+        )
                 .useAllAvailableWidth()
                 .setMarginBottom(20);
 
-        summaryTable.addCell(new Cell().add(new Paragraph("Total de Unidades").setFontSize(9)));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.valueOf(totalItems)).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph("Total de Unidades")
+                                .setFontSize(9)
+                )
+        );
 
-        summaryTable.addCell(new Cell().add(new Paragraph("Monto Total").setFont(fontBold).setFontSize(10)));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("$%.2f", sale.getTotal())).setFont(fontBold).setFontSize(10)).setTextAlignment(TextAlignment.RIGHT));
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph(String.valueOf(totalItems))
+                                .setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
 
-        summaryTable.addCell(new Cell().add(new Paragraph("Monto Recibido").setFontSize(9)));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("$%.2f", sale.getAmountPaid())).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph("Monto Total")
+                                .setFont(fontBold)
+                                .setFontSize(10)
+                )
+        );
 
-        summaryTable.addCell(new Cell().add(new Paragraph("Vuelto").setFontSize(9)));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("$%.2f", sale.getChangeAmount())).setFontSize(9)).setTextAlignment(TextAlignment.RIGHT));
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph(
+                                String.format(
+                                        "$%.2f",
+                                        sale.getTotal()
+                                )
+                        )
+                                .setFont(fontBold)
+                                .setFontSize(10)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph("Monto Recibido")
+                                .setFontSize(9)
+                )
+        );
+
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph(
+                                String.format(
+                                        "$%.2f",
+                                        sale.getAmountPaid()
+                                )
+                        ).setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
+
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph("Vuelto")
+                                .setFontSize(9)
+                )
+        );
+
+        summaryTable.addCell(
+                new Cell().add(
+                        new Paragraph(
+                                String.format(
+                                        "$%.2f",
+                                        sale.getChangeAmount()
+                                )
+                        ).setFontSize(9)
+                ).setTextAlignment(TextAlignment.RIGHT)
+        );
 
         document.add(summaryTable);
 
         // =========================
-        // PIE Y MENSAJE PERSONALIZADO
+        // PIE Y MENSAJE
         // =========================
 
-        Paragraph separator = new Paragraph("----------------------------------------------------------------------------------------------------")
+        Paragraph separator = new Paragraph(
+                "----------------------------------------------------------------------------------------------------"
+        )
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontColor(ColorConstants.LIGHT_GRAY)
                 .setMarginBottom(6);
 
         document.add(separator);
 
-        Paragraph mainGreeting = new Paragraph("¡Muchas gracias por confiar en nosotros!")
-                .setFont(fontBold)
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.CENTER);
+        Paragraph mainGreeting =
+                new Paragraph("¡Muchas gracias por confiar en nosotros!")
+                        .setFont(fontBold)
+                        .setFontSize(10)
+                        .setTextAlignment(TextAlignment.CENTER);
 
-        Paragraph personalNote = new Paragraph("Conserve este comprobante para cualquier reclamo o cambio dentro de los 30 días.")
-                .setFontSize(8)
-                .setFontColor(ColorConstants.DARK_GRAY)
-                .setTextAlignment(TextAlignment.CENTER);
+        Paragraph personalNote =
+                new Paragraph(
+                        "Conserve este comprobante para cualquier reclamo o cambio dentro de los 30 días."
+                )
+                        .setFontSize(8)
+                        .setFontColor(ColorConstants.DARK_GRAY)
+                        .setTextAlignment(TextAlignment.CENTER);
 
-        String printDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-        Paragraph printedAt = new Paragraph("Documento emitido electrónicamente por StockFlow el " + printDate)
-                .setFontSize(7)
-                .setFontColor(ColorConstants.GRAY)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMarginTop(4);
+        String printDate =
+                LocalDateTime.now().format(
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                );
+
+        Paragraph printedAt =
+                new Paragraph(
+                        "Documento emitido electrónicamente por StockFlow el "
+                                + printDate
+                )
+                        .setFontSize(7)
+                        .setFontColor(ColorConstants.GRAY)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setMarginTop(4);
 
         document.add(mainGreeting);
         document.add(personalNote);

@@ -43,25 +43,25 @@ public class SecurityConfig {
                     ).permitAll();
 
                     // Categories
-                    auth.requestMatchers(HttpMethod.GET,"/categories/**").authenticated();
-                    auth.requestMatchers(HttpMethod.POST,"/categories/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.DELETE,"/categories/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PUT,"/categories/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PATCH,"/categories/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET,"/categories/**").permitAll();
+                    auth.requestMatchers(HttpMethod.POST,"/categories/**").permitAll();
+                    auth.requestMatchers(HttpMethod.DELETE,"/categories/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PUT,"/categories/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PATCH,"/categories/**").permitAll();
 
                     // Products
                     auth.requestMatchers(HttpMethod.GET,"/products/**").permitAll();
-                    auth.requestMatchers(HttpMethod.POST,"/products/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.DELETE,"/products/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PUT,"/products/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PATCH,"/products/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.POST,"/products/**").permitAll();
+                    auth.requestMatchers(HttpMethod.DELETE,"/products/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PUT,"/products/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PATCH,"/products/**").permitAll();
 
                     // Sales
-                    auth.requestMatchers(HttpMethod.GET,"/sales/**").authenticated();
-                    auth.requestMatchers(HttpMethod.POST,"/sales/**").authenticated();
-                    auth.requestMatchers(HttpMethod.DELETE,"/sales/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PATCH,"/sales/**").hasRole("ADMIN");
-                    auth.requestMatchers(HttpMethod.PUT,"/sales/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET,"/sales/**").permitAll();
+                    auth.requestMatchers(HttpMethod.POST,"/sales/**").permitAll();
+                    auth.requestMatchers(HttpMethod.DELETE,"/sales/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PATCH,"/sales/**").permitAll();
+                    auth.requestMatchers(HttpMethod.PUT,"/sales/**").permitAll();
 
                     // Auth
                     auth.requestMatchers(HttpMethod.GET, "/auth/**").permitAll();
@@ -71,7 +71,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PUT, "/auth/**").permitAll();
 
                     // PDF WRITTER
-                    auth.requestMatchers(HttpMethod.GET, "/pdf/**").hasAnyAuthority("USER","ADMIN");
+                    auth.requestMatchers(HttpMethod.GET, "/pdf/**").permitAll();
 
                     auth.anyRequest().authenticated();
                 })

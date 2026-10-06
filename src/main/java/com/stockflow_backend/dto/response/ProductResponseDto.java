@@ -12,6 +12,8 @@ public class ProductResponseDto {
     private String barcode;
     private String brand;
     private BigDecimal price;
+    private BigDecimal discountedPrice;
+    private BigDecimal discount;
     private Integer stock;
     private Boolean active;
     private String categoryName;

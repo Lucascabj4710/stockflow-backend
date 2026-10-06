@@ -31,16 +31,13 @@ public class DetailSale {
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice;
 
+    @Column(name = "discount_price", nullable = false)
+    private BigDecimal discountPrice;
+
+    @Column(nullable = false)
+    private BigDecimal discount;
+
     @Column(nullable = false)
     private BigDecimal subtotal;
-
-    @PrePersist
-    @PreUpdate
-    public void calculateSubtotal() {
-        if (unitPrice == null || quantity == null) {
-            throw new IllegalStateException("Unit price and quantity must not be null");
-        }
-
-        subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
-    }
+    
 }

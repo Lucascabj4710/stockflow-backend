@@ -31,6 +31,11 @@ public class ProductRequestDTO {
     @NotNull
     private Boolean active;
 
+    @NotNull(message = "Discount is required")
+    @DecimalMin(value = "0.00")
+    @DecimalMax(value = "100.00")
+    private BigDecimal discount;
+
     @NotNull
     private Long categoryId;
 }

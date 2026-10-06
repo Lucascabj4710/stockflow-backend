@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Getter @Setter
 public class ProductResponseDto {
 
+    private Long id;
     private String name;
     private String barcode;
     private String brand;

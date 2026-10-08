@@ -4,6 +4,7 @@ import com.stockflow_backend.dto.request.UserEntityRequestDTO;
 import com.stockflow_backend.entities.AuthLoginRequestDTO;
 import com.stockflow_backend.entities.Role;
 import com.stockflow_backend.entities.UserEntity;
+import com.stockflow_backend.exceptions.InvalidSaleStatusException;
 import com.stockflow_backend.exceptions.UserAlreadyExistsException;
 import com.stockflow_backend.repositories.UserRepository;
 import com.stockflow_backend.utils.JwtUtils;
@@ -64,5 +65,6 @@ public class AuthService {
 
         return jwtUtils.createToken(authentication);
     }
+
 
 }

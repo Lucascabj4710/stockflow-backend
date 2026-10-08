@@ -11,6 +11,7 @@ import com.stockflow_backend.exceptions.ProductNotFoundException;
 import com.stockflow_backend.mapper.ProductMapper;
 import com.stockflow_backend.repositories.CategoryRepository;
 import com.stockflow_backend.repositories.ProductRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ProductService {
 
@@ -240,6 +242,7 @@ public class ProductService {
 
     @Transactional
     public void updateProductStatus(Long productId){
+
         Product product = getProductByIdPrivate(productId);
 
         if (product.getStock() <= 0) {

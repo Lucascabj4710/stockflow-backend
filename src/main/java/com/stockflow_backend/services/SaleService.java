@@ -32,13 +32,15 @@ public class SaleService {
     // Services
     private final DetailSaleService detailSaleService;
     private final ProductService productService;
+    private final AuthService authService;
 
 
-    public SaleService(SaleRepository saleRepository, SaleMapper saleMapper, DetailSaleService detailSaleService, ProductService productService) {
+    public SaleService(SaleRepository saleRepository, SaleMapper saleMapper, DetailSaleService detailSaleService, ProductService productService, AuthService authService) {
         this.saleRepository = saleRepository;
         this.saleMapper = saleMapper;
         this.detailSaleService = detailSaleService;
         this.productService = productService;
+        this.authService = authService;
     }
 
     @Transactional(readOnly = true)
@@ -47,7 +49,7 @@ public class SaleService {
                 .orElseThrow(()-> new SaleNotFoundException("The requested sale does not exist"));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public SaleResponseDto findSaleByID(Long saleID){
         return saleRepository.findById(saleID).map(saleMapper::toSaleResponseDto)
                 .orElseThrow(()-> new SaleNotFoundException("The requested sale does not exist"));
@@ -164,6 +166,7 @@ public class SaleService {
         sale.setStatus(SaleStatus.CANCELED);
         saleRepository.save(sale);
     }
+
 
 
 

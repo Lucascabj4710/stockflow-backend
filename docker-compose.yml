@@ -9,7 +9,7 @@ services:
       MYSQL_USER: stockflow_user
       MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -19,6 +19,7 @@ services:
       retries: 10
 
   backend:
+    build: .
     image: lucascabj4710/stockflow-backend:latest
     container_name: stockflow_backend
     restart: always
@@ -28,6 +29,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_USER_GENERATOR: ${JWT_USER_GENERATOR}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:

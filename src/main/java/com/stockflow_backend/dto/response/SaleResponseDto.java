@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter @Getter
 public class SaleResponseDto {
 
-    private Long saleId;
+    private Long id;
     private LocalDateTime saleDate;
     private SaleStatus status;
     private BigDecimal total = BigDecimal.ZERO;

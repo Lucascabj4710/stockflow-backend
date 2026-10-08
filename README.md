@@ -1,4 +1,4 @@
-Markdown# 📦 StockFlow Backend
+📦 StockFlow Backend
 
 Sistema backend de Punto de Venta (POS) para gestión de productos, inventario, ventas y generación de comprobantes.
 
